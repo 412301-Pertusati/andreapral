@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   // Solo GET
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Método no permitido' });
