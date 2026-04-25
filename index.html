@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Andrea Pral · Clases de Masajes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --cream: oklch(97% 0.012 70);
+    --cream-dark: oklch(93% 0.018 70);
+    --brown: oklch(28% 0.04 50);
+    --terra: oklch(56% 0.13 45);
+    --terra-light: oklch(88% 0.06 55);
+    --sage: oklch(58% 0.08 155);
+    --sage-light: oklch(90% 0.04 155);
+    --muted: oklch(55% 0.02 60);
+    --border: oklch(88% 0.02 60);
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--brown);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+  h1,h2,h3,h4 { font-family: 'Playfair Display', serif; }
+  ::selection { background: var(--terra-light); }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--cream); }
+  ::-webkit-scrollbar-thumb { background: var(--terra-light); border-radius: 3px; }
+
+  /* ── RESPONSIVE ─────────────────────────────────────────── */
+
+  /* Padding horizontal de secciones */
+  @media (max-width: 640px) {
+    section  { padding-left: 20px !important; padding-right: 20px !important; }
+    footer   { padding-left: 20px !important; padding-right: 20px !important; }
+    .nav-root { padding-left: 20px !important; padding-right: 20px !important; }
+  }
+
+  /* Nav: ocultar links en mobile */
+  @media (max-width: 768px) {
+    .nav-links { display: none !important; }
+  }
+
+  /* Features: 4 col → 2 col → 1 col */
+  @media (max-width: 768px) {
+    .feat-grid { grid-template-columns: 1fr 1fr !important; }
+    .feat-item { border-right: none !important; border-bottom: 1px solid var(--border) !important; }
+    .feat-item:nth-child(odd)  { border-right: 1px solid var(--border) !important; }
+    .feat-item:nth-last-child(-n+2) { border-bottom: none !important; }
+  }
+  @media (max-width: 400px) {
+    .feat-grid { grid-template-columns: 1fr !important; }
+    .feat-item { border-right: none !important; border-bottom: 1px solid var(--border) !important; }
+    .feat-item:nth-child(odd) { border-right: none !important; }
+    .feat-item:last-child { border-bottom: none !important; }
+  }
+
+  /* Calendar: sidebar debajo del grid */
+  @media (max-width: 768px) {
+    .cal-layout { grid-template-columns: 1fr !important; }
+  }
+
+  /* Zoom: texto + mockup en columna */
+  @media (max-width: 768px) {
+    .zoom-layout { grid-template-columns: 1fr !important; gap: 40px !important; }
+  }
+
+  /* Espacio: tarjetas en columna */
+  @media (max-width: 640px) {
+    .espacio-cards { grid-template-columns: 1fr !important; }
+  }
+
+  /* Contacto: padding reducido, ancho completo */
+  @media (max-width: 640px) {
+    .contact-card { display: block !important; padding: 36px 24px !important; }
+  }
+
+  /* Footer: apilado */
+  @media (max-width: 640px) {
+    .footer-inner { flex-direction: column !important; align-items: flex-start !important; gap: 16px !important; }
+  }
+
+  /* Programa: note en flex wrap para que no desborde */
+  @media (max-width: 480px) {
+    .zone-header { flex-wrap: wrap !important; }
+    .zone-note   { margin-left: 20px !important; }
+  }
+
+  /* Calendario: header nav + leyenda en columna en mobile */
+  @media (max-width: 500px) {
+    .cal-header { flex-wrap: wrap !important; row-gap: 10px !important; }
+    .cal-legend { width: 100% !important; }
+    .cal-month-name { font-size: 18px !important; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+/* ── DATA ───────────────────────────────────────── */
+const PROGRAM = [
+  {
+    id: "canas",
+    title: "Masaje con Cañas",
+    color: "terra",
+    icon: "𝄞",
+    zones: [
+      {
+        zone: "Pie",
+        techs: ["Deslizamiento con caña", "Rodillo", "Zig zag", "Ripeo"]
+      },
+      {
+        zone: "Pierna Baja",
+        sub: ["Cañas pequeñas", "Cañas medias"],
+        techs: ["Deslizamiento", "Amasamiento", "Pinza", "Ripeo", "Estimulación circular", "Deslizamiento medio, extremo e interno", "Integración"]
+      },
+      {
+        zone: "Pierna Alta (Muslos)",
+        techs: ["Repetición técnicas pierna baja", "Caña en forma de abanico"]
+      },
+      {
+        zone: "Glúteos",
+        techs: ["Abanico", "Ripeo", "Amasamiento"]
+      },
+      {
+        zone: "Finalización",
+        techs: ["Deslizamientos con caña", "Estiramiento talón de Aquiles", "Termino en pie"]
+      }
+    ]
+  },
+  {
+    id: "espalda",
+    title: "Masaje de Espalda",
+    color: "sage",
+    icon: "❧",
+    zones: [
+      {
+        zone: "Espalda Central",
+        note: "Inicia con técnicas de relajación manual",
+        techs: ["Deslizamiento con cañas ambos laterales", "Ripeo en lumbares", "Estimulación circular", "Amasamiento con talón de mano + caña"]
+      },
+      {
+        zone: "Hemisferio Lateral",
+        sub: ["Manual", "Con cañas"],
+        techs: ["Deslizamiento", "Talón de mano", "Pulgares", "Ripeo", "Estimulación circular", "Abanico", "Deslizamiento integral"]
+      },
+      {
+        zone: "Bajada por Brazo",
+        techs: ["Deslizamiento", "Ripeos", "Estimulación", "Deslizamientos en zig zag", "Deslizamiento integral"]
+      },
+      {
+        zone: "Cervicales",
+        note: "Técnicas relajantes manuales + cañas",
+        techs: ["Apertura con cañas pequeñas en trapecio", "Abanico en trapecio"]
+      }
+    ]
+  }
+];
+
+/* ── CACHE EN MEMORIA ────────────────────────────────────────────────────── */
+const eventsCache = {}; // clave: 'YYYY-MM', valor: array de eventos ya mapeados
+
+/* ── FETCH VÍA PROXY SERVERLESS ─────────────────────────────────────────── */
+// Las credenciales viven en Vercel → Settings → Environment Variables.
+// Este fetch llama a /api/calendar, que nunca expone CALENDAR_ID ni API_KEY.
+async function fetchGoogleCalendarEvents(year, month) {
+  const pad = n => String(n).padStart(2, '0');
+  const cacheKey = `${year}-${pad(month + 1)}`;
+  if (eventsCache[cacheKey]) return eventsCache[cacheKey];
+
+  const res = await fetch(`/api/calendar?year=${year}&month=${month + 1}`);
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body?.error || `Error ${res.status} al obtener el calendario`);
+  }
+  const events = await res.json();
+
+  eventsCache[cacheKey] = events;
+  return events;
+}
+
+/* ── COMPONENTS ─────────────────────────────────── */
+
+function Nav() {
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", fn);
+    return () => window.removeEventListener("scroll", fn);
+  }, []);
+
+  return (
+    <nav className="nav-root" style={{
+      position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+      background: scrolled ? "oklch(97% 0.012 70 / 0.95)" : "transparent",
+      backdropFilter: scrolled ? "blur(12px)" : "none",
+      borderBottom: scrolled ? "1px solid var(--border)" : "none",
+      transition: "all 0.3s ease",
+      display: "flex", alignItems: "center", justifyContent: "space-between",
+      padding: "0 48px", height: 64,
+    }}>
+      <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 600, color: "var(--brown)", letterSpacing: "-0.02em" }}>
+        Andrea Pral
+      </div>
+      <div className="nav-links" style={{ display: "flex", gap: 32, fontSize: 14, fontWeight: 400 }}>
+        {[["#programa", "Programa"], ["#calendario", "Calendario"], ["#espacio", "Espacio"], ["#contacto", "Contacto"]].map(([href, label]) => (
+          <a key={href} href={href} style={{ color: "var(--muted)", textDecoration: "none", transition: "color 0.2s" }}
+            onMouseEnter={e => e.target.style.color = "var(--terra)"}
+            onMouseLeave={e => e.target.style.color = "var(--muted)"}>{label}</a>
+        ))}
+      </div>
+      <a href="https://wa.me/5492954551339" target="_blank" rel="noopener noreferrer" style={{
+        background: "var(--terra)", color: "white", padding: "8px 20px",
+        borderRadius: 32, fontSize: 13, fontWeight: 500, textDecoration: "none",
+        transition: "opacity 0.2s"
+      }}
+        onMouseEnter={e => e.target.style.opacity = "0.85"}
+        onMouseLeave={e => e.target.style.opacity = "1"}>
+        WhatsApp
+      </a>
+    </nav>
+  );
+}
+
+function Hero() {
+  return (
+    <section style={{
+      minHeight: "100vh", display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center",
+      background: `radial-gradient(ellipse 80% 60% at 50% 0%, oklch(90% 0.06 55 / 0.35), transparent), var(--cream)`,
+      textAlign: "center", padding: "100px 24px 80px",
+      position: "relative", overflow: "hidden",
+    }}>
+      {/* decorative rings */}
+      {[340, 520, 700].map((s, i) => (
+        <div key={i} style={{
+          position: "absolute", borderRadius: "50%",
+          border: `1px solid oklch(70% 0.06 55 / ${0.15 - i * 0.04})`,
+          width: s, height: s,
+          top: "50%", left: "50%",
+          transform: "translate(-50%, -50%)",
+          pointerEvents: "none",
+        }} />
+      ))}
+
+      <div style={{
+        display: "inline-block", background: "var(--terra-light)",
+        color: "var(--terra)", fontSize: 12, fontWeight: 500,
+        letterSpacing: "0.12em", textTransform: "uppercase",
+        padding: "6px 16px", borderRadius: 32, marginBottom: 28,
+      }}>
+        Santa Rosa · La Pampa · Clases Online vía Zoom
+      </div>
+
+      <h1 style={{
+        fontFamily: "'Playfair Display', serif",
+        fontSize: "clamp(48px, 7vw, 88px)",
+        fontWeight: 600, lineHeight: 1.1,
+        color: "var(--brown)", marginBottom: 8,
+        letterSpacing: "-0.03em",
+      }}>
+        Masajes desde cero
+      </h1>
+      <h2 style={{
+        fontFamily: "'Playfair Display', serif",
+        fontSize: "clamp(22px, 3.5vw, 38px)",
+        fontWeight: 400, fontStyle: "italic",
+        color: "var(--terra)", marginBottom: 28,
+      }}>
+        con Andrea Pral
+      </h2>
+      <p style={{
+        maxWidth: 540, fontSize: 18, color: "var(--muted)",
+        lineHeight: 1.7, marginBottom: 44,
+        fontWeight: 300,
+      }}>
+        Masajista profesional con más de <strong style={{color:"var(--brown)", fontWeight:500}}>14 años de experiencia</strong>. Aprendé técnicas de masaje con cañas y masaje de espalda desde donde estés — clases en vivo por Zoom con material de estudio incluido.
+      </p>
+
+      <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center" }}>
+        <a href="#calendario" style={{
+          background: "var(--terra)", color: "white",
+          padding: "14px 32px", borderRadius: 48,
+          fontSize: 15, fontWeight: 500, textDecoration: "none",
+          transition: "all 0.2s", boxShadow: "0 4px 20px oklch(56% 0.13 45 / 0.3)",
+        }}
+          onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 8px 28px oklch(56% 0.13 45 / 0.4)"; }}
+          onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = "0 4px 20px oklch(56% 0.13 45 / 0.3)"; }}>
+          Ver cronograma
+        </a>
+        <a href="https://wa.me/5492954551339" target="_blank" rel="noopener noreferrer" style={{
+          background: "transparent", color: "var(--brown)",
+          padding: "14px 32px", borderRadius: 48,
+          border: "1.5px solid var(--border)",
+          fontSize: 15, fontWeight: 500, textDecoration: "none",
+          transition: "all 0.2s",
+        }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--terra)"; e.currentTarget.style.color = "var(--terra)"; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--brown)"; }}>
+          Consultar por WhatsApp
+        </a>
+      </div>
+
+      {/* scroll hint */}
+      <div style={{
+        position: "absolute", bottom: 36, left: "50%", transform: "translateX(-50%)",
+        display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
+        color: "var(--muted)", fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase",
+        animation: "bounce 2s ease-in-out infinite",
+      }}>
+        <span>Explorar</span>
+        <svg width="16" height="24" viewBox="0 0 16 24" fill="none">
+          <path d="M8 4v16M2 14l6 6 6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </div>
+    </section>
+  );
+}
+
+function Features() {
+  const items = [
+    { icon: "▶", label: "En vivo por Zoom", desc: "Clases interactivas con seguimiento en tiempo real" },
+    { icon: "◎", label: "Material de estudio", desc: "PDFs, guías técnicas y videos de referencia incluidos" },
+    { icon: "◇", label: "Grupos reducidos", desc: "Atención personalizada para garantizar el aprendizaje" },
+    { icon: "◈", label: "Certificación", desc: "Certificado de finalización al completar el programa" },
+  ];
+  return (
+    <section style={{ padding: "72px 48px", background: "var(--cream-dark)" }}>
+      <div className="feat-grid" style={{
+        maxWidth: 1100, margin: "0 auto",
+        display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1,
+        border: "1px solid var(--border)", borderRadius: 16, overflow: "hidden",
+      }}>
+        {items.map((it, i) => (
+          <div key={i} className="feat-item" style={{
+            padding: "36px 28px",
+            borderRight: i < 3 ? "1px solid var(--border)" : "none",
+            background: "var(--cream)",
+            transition: "background 0.2s",
+          }}
+            onMouseEnter={e => e.currentTarget.style.background = "var(--cream-dark)"}
+            onMouseLeave={e => e.currentTarget.style.background = "var(--cream)"}>
+            <div style={{ fontSize: 22, marginBottom: 12, color: "var(--terra)" }}>{it.icon}</div>
+            <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, marginBottom: 6 }}>{it.label}</div>
+            <div style={{ fontSize: 14, color: "var(--muted)", lineHeight: 1.6 }}>{it.desc}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ProgramSection() {
+  const [active, setActive] = useState("canas");
+  const [openZone, setOpenZone] = useState(null);
+  const program = PROGRAM.find(p => p.id === active);
+
+  return (
+    <section id="programa" style={{ padding: "96px 48px", background: "var(--cream)" }}>
+      <div style={{ maxWidth: 900, margin: "0 auto" }}>
+        {/* header */}
+        <div style={{ textAlign: "center", marginBottom: 56 }}>
+          <div style={{ display: "inline-block", background: "var(--sage-light)", color: "var(--sage)", fontSize: 12, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase", padding: "5px 14px", borderRadius: 32, marginBottom: 16 }}>Programa</div>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(32px, 4vw, 48px)", fontWeight: 600, letterSpacing: "-0.02em" }}>
+            Técnicas que vas a aprender
+          </h2>
+        </div>
+
+        {/* tab switcher */}
+        <div style={{ display: "flex", gap: 0, background: "var(--cream-dark)", borderRadius: 12, padding: 4, marginBottom: 40, border: "1px solid var(--border)" }}>
+          {PROGRAM.map(p => (
+            <button key={p.id} onClick={() => { setActive(p.id); setOpenZone(null); }} style={{
+              flex: 1, padding: "12px 24px", border: "none", cursor: "pointer",
+              borderRadius: 9, fontSize: 15, fontFamily: "'Playfair Display', serif",
+              fontWeight: active === p.id ? 600 : 400,
+              background: active === p.id ? "white" : "transparent",
+              color: active === p.id ? "var(--brown)" : "var(--muted)",
+              boxShadow: active === p.id ? "0 1px 6px oklch(0% 0 0 / 0.08)" : "none",
+              transition: "all 0.2s",
+            }}>{p.title}</button>
+          ))}
+        </div>
+
+        {/* zones accordion */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {program.zones.map((z, i) => {
+            const isOpen = openZone === i;
+            return (
+              <div key={i} style={{
+                border: "1px solid", borderColor: isOpen ? (active === "canas" ? "var(--terra-light)" : "var(--sage-light)") : "var(--border)",
+                borderRadius: 12, overflow: "hidden",
+                transition: "border-color 0.2s",
+              }}>
+                <button onClick={() => setOpenZone(isOpen ? null : i)} style={{
+                  width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
+                  padding: "18px 24px", border: "none", cursor: "pointer",
+                  background: isOpen ? (active === "canas" ? "oklch(88% 0.06 55 / 0.25)" : "oklch(90% 0.04 155 / 0.25)") : "var(--cream)",
+                  transition: "background 0.2s",
+                }}>
+                  <div className="zone-header" style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div style={{
+                      width: 8, height: 8, borderRadius: "50%", flexShrink: 0,
+                      background: active === "canas" ? "var(--terra)" : "var(--sage)",
+                    }} />
+                    <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 600, color: "var(--brown)" }}>{z.zone}</span>
+                    {z.note && <span className="zone-note" style={{ fontSize: 12, color: "var(--muted)", fontStyle: "italic" }}>— {z.note}</span>}
+                  </div>
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style={{ transform: isOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s", flexShrink: 0 }}>
+                    <path d="M4 6l5 5 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+                {isOpen && (
+                  <div style={{ padding: "8px 24px 24px", background: "white" }}>
+                    {z.sub && (
+                      <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
+                        {z.sub.map((s, j) => (
+                          <span key={j} style={{
+                            fontSize: 11, fontWeight: 500, letterSpacing: "0.08em", textTransform: "uppercase",
+                            color: "var(--muted)", background: "var(--cream-dark)",
+                            padding: "3px 10px", borderRadius: 20,
+                          }}>{s}</span>
+                        ))}
+                      </div>
+                    )}
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      {z.techs.map((t, j) => (
+                        <div key={j} style={{
+                          fontSize: 14, color: "var(--brown)",
+                          background: "var(--cream-dark)", borderRadius: 8,
+                          padding: "6px 14px", border: "1px solid var(--border)",
+                        }}>{t}</div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Calendar() {
+  const [currentDate, setCurrentDate] = useState(() => new Date());
+  const [selectedDay, setSelectedDay]  = useState(null);
+  const [events, setEvents]            = useState([]);
+  const [loading, setLoading]          = useState(false);
+  const [error, setError]              = useState(null);
+  const [retryCount, setRetryCount]    = useState(0);
+
+  const year  = currentDate.getFullYear();
+  const month = currentDate.getMonth(); // 0-indexed
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    setSelectedDay(null);
+    fetchGoogleCalendarEvents(year, month)
+      .then(evts => { if (!cancelled) { setEvents(evts); setLoading(false); } })
+      .catch(err  => { if (!cancelled) { setError(err.message); setLoading(false); } });
+    return () => { cancelled = true; };
+  }, [year, month, retryCount]);
+
+  const MONTHS_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const DAYS = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+
+  const pad       = n => String(n).padStart(2, '0');
+  const toDateStr = d => `${year}-${pad(month + 1)}-${pad(d)}`;
+
+  const firstDow    = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  const eventMap = {};
+  events.forEach(e => { eventMap[e.date] = e; });
+
+  const cells = [];
+  for (let i = 0; i < firstDow; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+
+  const selectedEvent = selectedDay ? eventMap[toDateStr(selectedDay)] : null;
+
+  const changeMonth = dir =>
+    setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() + dir, 1));
+
+  const handleRetry = () => {
+    delete eventsCache[`${year}-${pad(month + 1)}`];
+    setRetryCount(c => c + 1);
+  };
+
+  const formatEventDate = dateStr => {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const mes = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    return `${d} de ${mes[m - 1]} de ${y}`;
+  };
+
+  return (
+    <section id="calendario" style={{ padding: "96px 48px", background: "var(--cream-dark)" }}>
+      <div style={{ maxWidth: 900, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 56 }}>
+          <div style={{ display: "inline-block", background: "var(--terra-light)", color: "var(--terra)", fontSize: 12, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase", padding: "5px 14px", borderRadius: 32, marginBottom: 16 }}>Cronograma</div>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(32px, 4vw, 48px)", fontWeight: 600, letterSpacing: "-0.02em" }}>
+            Calendario de Clases
+          </h2>
+          <p style={{ color: "var(--muted)", marginTop: 12, fontSize: 15 }}>Hacé click en una fecha marcada para ver los detalles de la clase</p>
+        </div>
+
+        <div className="cal-layout" style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 24 }}>
+          {/* Calendar grid */}
+          <div style={{ background: "white", borderRadius: 20, border: "1px solid var(--border)", overflow: "hidden", padding: 28 }}>
+            {/* Month header */}
+            <div className="cal-header" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <button onClick={() => changeMonth(-1)} style={{
+                  background: "none", border: "1px solid var(--border)", borderRadius: 8,
+                  width: 32, height: 32, cursor: "pointer", display: "flex",
+                  alignItems: "center", justifyContent: "center", color: "var(--muted)", transition: "all 0.2s",
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--terra)"; e.currentTarget.style.color = "var(--terra)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--muted)"; }}>
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M9 2L4 7l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+                <span className="cal-month-name" style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 600 }}>
+                  {MONTHS_ES[month]} {year}
+                </span>
+                <button onClick={() => changeMonth(1)} style={{
+                  background: "none", border: "1px solid var(--border)", borderRadius: 8,
+                  width: 32, height: 32, cursor: "pointer", display: "flex",
+                  alignItems: "center", justifyContent: "center", color: "var(--muted)", transition: "all 0.2s",
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--terra)"; e.currentTarget.style.color = "var(--terra)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--muted)"; }}>
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M5 2l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+              <div className="cal-legend" style={{ display: "flex", gap: 12, fontSize: 13, color: "var(--muted)", alignItems: "center" }}>
+                <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                  <span style={{ width: 10, height: 10, borderRadius: "50%", background: "var(--terra)", display: "inline-block" }}></span>
+                  Presencial
+                </span>
+                <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                  <span style={{ width: 10, height: 10, borderRadius: "50%", background: "var(--sage)", display: "inline-block" }}></span>
+                  Zoom
+                </span>
+              </div>
+            </div>
+
+            {/* Day headers */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", marginBottom: 8 }}>
+              {DAYS.map(d => (
+                <div key={d} style={{ textAlign: "center", fontSize: 11, fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--muted)", paddingBottom: 8 }}>{d}</div>
+              ))}
+            </div>
+
+            {/* Grid body: loading / error / cells */}
+            {loading ? (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4 }}>
+                {Array.from({ length: 35 }).map((_, i) => (
+                  <div key={i} style={{
+                    aspectRatio: "1", borderRadius: 10,
+                    background: "var(--cream-dark)",
+                    animation: `pulse 1.5s ease-in-out ${i * 30}ms infinite`,
+                  }} />
+                ))}
+              </div>
+            ) : error ? (
+              <div style={{ padding: "32px 16px", textAlign: "center" }}>
+                <div style={{ fontSize: 28, marginBottom: 12 }}>⚠</div>
+                <p style={{ fontSize: 14, color: "var(--muted)", lineHeight: 1.6, marginBottom: 16 }}>
+                  No se pudo cargar el calendario.<br/>
+                  <span style={{ fontSize: 12, opacity: 0.7 }}>{error}</span>
+                </p>
+                <button onClick={handleRetry} style={{
+                  padding: "8px 20px", borderRadius: 20, border: "1px solid var(--terra)",
+                  background: "none", cursor: "pointer", fontSize: 13,
+                  color: "var(--terra)", transition: "all 0.2s",
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.background = "var(--terra-light)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = "none"; }}>
+                  Reintentar
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4 }}>
+                {cells.map((day, i) => {
+                  if (!day) return <div key={i} />;
+                  const evt = eventMap[toDateStr(day)];
+                  const isSelected = selectedDay === day;
+                  return (
+                    <button key={i}
+                      onClick={() => setSelectedDay(evt ? (isSelected ? null : day) : null)}
+                      style={{
+                        aspectRatio: "1", display: "flex", flexDirection: "column",
+                        alignItems: "center", justifyContent: "center",
+                        borderRadius: 10, border: "none",
+                        cursor: evt ? "pointer" : "default",
+                        background: isSelected
+                          ? (evt?.type === "zoom" ? "var(--sage)" : "var(--terra)")
+                          : evt
+                            ? (evt.type === "zoom" ? "var(--sage-light)" : "var(--terra-light)")
+                            : "transparent",
+                        color: isSelected ? "white" : "var(--brown)",
+                        transition: "all 0.15s",
+                        fontSize: 15, fontWeight: evt ? 500 : 400,
+                        position: "relative",
+                      }}
+                      onMouseEnter={e => { if (evt && !isSelected) e.currentTarget.style.opacity = "0.75"; }}
+                      onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}>
+                      {day}
+                      {evt && (
+                        <div style={{
+                          width: 5, height: 5, borderRadius: "50%",
+                          background: isSelected ? "white" : (evt.type === "zoom" ? "var(--sage)" : "var(--terra)"),
+                          position: "absolute", bottom: 5,
+                        }} />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Side panel */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {selectedEvent ? (
+              <div style={{ background: "white", borderRadius: 20, border: "1px solid var(--border)", padding: 28 }}>
+                <div style={{
+                  display: "inline-block",
+                  background: selectedEvent.type === "zoom" ? "var(--sage-light)" : "var(--terra-light)",
+                  color: selectedEvent.type === "zoom" ? "var(--sage)" : "var(--terra)",
+                  fontSize: 11, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase",
+                  padding: "4px 12px", borderRadius: 20, marginBottom: 16,
+                }}>
+                  {selectedEvent.type === "zoom" ? "Clase Zoom" : "Clase Presencial"}
+                </div>
+                <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 600, marginBottom: 8, lineHeight: 1.3 }}>
+                  {selectedEvent.title}
+                </div>
+                {selectedEvent.desc && (
+                  <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.6, marginBottom: 12 }}>
+                    {selectedEvent.desc}
+                  </p>
+                )}
+                <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 12 }}>
+                  {[
+                    ["📅", formatEventDate(selectedEvent.date)],
+                    selectedEvent.time     ? ["🕕", selectedEvent.time + " hs"]  : null,
+                    selectedEvent.duration ? ["⏱", selectedEvent.duration]       : null,
+                    selectedEvent.type === "zoom" ? ["💻", "Link por WhatsApp"] : null,
+                  ].filter(Boolean).map(([icon, val]) => (
+                    <div key={val} style={{ display: "flex", gap: 10, fontSize: 14, color: "var(--muted)", alignItems: "center" }}>
+                      <span style={{ fontSize: 15 }}>{icon}</span>
+                      <span>{val}</span>
+                    </div>
+                  ))}
+                </div>
+                <a href="https://wa.me/5492954551339" target="_blank" rel="noopener noreferrer" style={{
+                  display: "block", marginTop: 24,
+                  background: "var(--terra)", color: "white", textAlign: "center",
+                  padding: "12px", borderRadius: 12, fontSize: 14, fontWeight: 500,
+                  textDecoration: "none", transition: "opacity 0.2s",
+                }}
+                  onMouseEnter={e => e.target.style.opacity = "0.85"}
+                  onMouseLeave={e => e.target.style.opacity = "1"}>
+                  Inscribirme a esta clase
+                </a>
+              </div>
+            ) : (
+              <div style={{ background: "white", borderRadius: 20, border: "1px solid var(--border)", padding: 28, flex: 1 }}>
+                <div style={{ textAlign: "center", paddingTop: 24 }}>
+                  <div style={{ fontSize: 36, marginBottom: 12 }}>◎</div>
+                  <p style={{ fontSize: 14, color: "var(--muted)", lineHeight: 1.7 }}>
+                    Seleccioná una fecha resaltada para ver el detalle de la clase
+                  </p>
+                </div>
+                {events.length > 0 && (
+                  <div style={{ borderTop: "1px solid var(--border)", marginTop: 24, paddingTop: 20 }}>
+                    <div style={{ fontSize: 12, fontWeight: 500, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 12 }}>
+                      Próximas clases
+                    </div>
+                    {events.slice(0, 4).map(evt => {
+                      const day = parseInt(evt.date.slice(8), 10);
+                      return (
+                        <div key={evt.date} onClick={() => setSelectedDay(day)} style={{
+                          display: "flex", gap: 10, alignItems: "flex-start",
+                          padding: "8px 0", borderBottom: "1px solid var(--border)",
+                          cursor: "pointer",
+                        }}>
+                          <div style={{
+                            minWidth: 36, height: 36, borderRadius: 8,
+                            background: evt.type === "zoom" ? "var(--sage-light)" : "var(--terra-light)",
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            fontSize: 13, fontWeight: 600,
+                            color: evt.type === "zoom" ? "var(--sage)" : "var(--terra)",
+                          }}>{day}</div>
+                          <div>
+                            <div style={{ fontSize: 13, fontWeight: 500, color: "var(--brown)", lineHeight: 1.3 }}>{evt.title}</div>
+                            <div style={{ fontSize: 12, color: "var(--muted)" }}>{evt.time ? evt.time + " hs" : ""}</div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ZoomSection() {
+  const materiales = [
+    "Guía de técnicas con cañas (PDF ilustrado)",
+    "Videos demostrativos de cada maniobra",
+    "Anatomía aplicada al masaje",
+    "Protocolo de preparación del espacio",
+    "Ficha de evaluación del cliente",
+    "Recomendaciones post sesión",
+  ];
+  return (
+    <section style={{ padding: "96px 48px", background: "var(--cream)" }}>
+      <div className="zoom-layout" style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
+        {/* Text side */}
+        <div>
+          <div style={{ display: "inline-block", background: "var(--sage-light)", color: "var(--sage)", fontSize: 12, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase", padding: "5px 14px", borderRadius: 32, marginBottom: 20 }}>Material de estudio</div>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(28px, 3.5vw, 42px)", fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 20, lineHeight: 1.2 }}>
+            Todo lo que necesitás para aprender
+          </h2>
+          <p style={{ fontSize: 16, color: "var(--muted)", lineHeight: 1.8, marginBottom: 32, fontWeight: 300 }}>
+            Cada clase viene acompañada de material exclusivo para que puedas repasar, practicar y profundizar a tu ritmo.
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {materiales.map((m, i) => (
+              <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                <div style={{ width: 20, height: 20, borderRadius: "50%", background: "var(--sage-light)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 2 }}>
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="var(--sage)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </div>
+                <span style={{ fontSize: 15, color: "var(--brown)" }}>{m}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Zoom mockup */}
+        <div style={{ position: "relative" }}>
+          <div style={{
+            background: "#1a1a2e", borderRadius: 20, overflow: "hidden",
+            boxShadow: "0 24px 64px oklch(0% 0 0 / 0.2)",
+          }}>
+            {/* Zoom top bar */}
+            <div style={{ background: "#0f0f1a", padding: "10px 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <span style={{ color: "white", fontSize: 13, fontWeight: 500 }}>Clases de Masajes · Zoom</span>
+              <div style={{ display: "flex", gap: 6 }}>
+                {["#ff5f57","#febc2e","#28c840"].map(c => <div key={c} style={{ width: 10, height: 10, borderRadius: "50%", background: c }} />)}
+              </div>
+            </div>
+            {/* Main area */}
+            <div style={{ padding: 16, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              {/* Main speaker */}
+              <div style={{
+                gridColumn: "1 / -1",
+                background: "oklch(30% 0.06 50)",
+                borderRadius: 12, height: 160,
+                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                position: "relative", overflow: "hidden",
+              }}>
+                {/* SVG placeholder for instructor */}
+                <svg width="100%" height="100%" viewBox="0 0 400 160" style={{ position: "absolute", inset: 0 }}>
+                  <rect width="400" height="160" fill="oklch(30% 0.06 50)"/>
+                  <circle cx="200" cy="60" r="28" fill="oklch(70% 0.06 55 / 0.3)"/>
+                  <ellipse cx="200" cy="130" rx="48" ry="30" fill="oklch(70% 0.06 55 / 0.2)"/>
+                  <text x="200" y="100" textAnchor="middle" fill="oklch(80% 0.04 55 / 0.5)" fontFamily="monospace" fontSize="11">Andrea Pral — Instructora</text>
+                </svg>
+                <div style={{ position: "absolute", bottom: 10, left: 12, display: "flex", gap: 6, alignItems: "center" }}>
+                  <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#28c840" }} />
+                  <span style={{ color: "white", fontSize: 11 }}>Andrea Pral</span>
+                </div>
+              </div>
+              {/* Participants */}
+              {["Alumna 1", "Alumna 2"].map(name => (
+                <div key={name} style={{
+                  background: "oklch(22% 0.04 50)",
+                  borderRadius: 10, height: 80,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  position: "relative",
+                }}>
+                  <div style={{ width: 32, height: 32, borderRadius: "50%", background: "oklch(55% 0.08 155 / 0.4)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <span style={{ color: "white", fontSize: 13 }}>✦</span>
+                  </div>
+                  <div style={{ position: "absolute", bottom: 6, left: 8, color: "oklch(80% 0 0)", fontSize: 10 }}>{name}</div>
+                </div>
+              ))}
+            </div>
+            {/* Controls */}
+            <div style={{ padding: "12px 16px", display: "flex", justifyContent: "center", gap: 16 }}>
+              {["🎙", "📷", "💬", "👋"].map(icon => (
+                <div key={icon} style={{
+                  width: 36, height: 36, borderRadius: "50%",
+                  background: "oklch(25% 0.02 50)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15,
+                }}>{icon}</div>
+              ))}
+              <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#e74c3c", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: "white", fontWeight: 700 }}>✕</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function EspacioSection() {
+  return (
+    <section id="espacio" style={{ padding: "96px 48px", background: "var(--cream-dark)" }}>
+      <div style={{ maxWidth: 900, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 56 }}>
+          <div style={{ display: "inline-block", background: "var(--terra-light)", color: "var(--terra)", fontSize: 12, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase", padding: "5px 14px", borderRadius: 32, marginBottom: 16 }}>Preparación</div>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(32px, 4vw, 48px)", fontWeight: 600, letterSpacing: "-0.02em" }}>
+            Preparación del espacio
+          </h2>
+          <p style={{ color: "var(--muted)", marginTop: 12, fontSize: 15, maxWidth: 560, margin: "12px auto 0" }}>Gabinete de masajes — todo lo que necesitás saber para trabajar con profesionalismo</p>
+        </div>
+
+        <div className="espacio-cards" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+          {[
+            {
+              title: "La camilla",
+              text: "Debe ser cómoda y estar a la altura de la cadera de la masajista, permitiendo moverse en ambos lados sin sufrir dolores. La limpieza y desinfección después de cada cliente es primordial.",
+            },
+            {
+              title: "Ambiente",
+              text: "Temperatura regular, luz temple, aromatizado y música relajante para crear un ambiente relajado y propicio para la sesión.",
+            },
+            {
+              title: "Materiales",
+              text: "Sábanas o toallas, mantas, aceites, cremas y otros productos de uso exclusivo para el gabinete.",
+            },
+            {
+              title: "Evaluación del cliente",
+              text: "Se deben realizar algunas preguntas de rutina para conocer el estado de salud del cliente, luego explicar brevemente la sesión.",
+            },
+          ].map((item, i) => (
+            <div key={i} style={{
+              background: "white", borderRadius: 16, padding: 28,
+              border: "1px solid var(--border)",
+              transition: "transform 0.2s, box-shadow 0.2s",
+            }}
+              onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "0 12px 32px oklch(0% 0 0 / 0.06)"; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = ""; }}>
+              <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 600, marginBottom: 10, color: "var(--terra)" }}>{item.title}</h3>
+              <p style={{ fontSize: 14, color: "var(--muted)", lineHeight: 1.8 }}>{item.text}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Contraindications */}
+        <div style={{
+          marginTop: 28, background: "oklch(96% 0.03 30)", borderRadius: 16,
+          border: "1px solid oklch(85% 0.05 30)", padding: 28,
+        }}>
+          <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 600, marginBottom: 12, color: "oklch(40% 0.08 30)" }}>
+            Contraindicaciones para el masaje
+          </h3>
+          <p style={{ fontSize: 14, lineHeight: 1.8, color: "var(--muted)" }}>
+            No se debe realizar un masaje si la persona presenta: fiebre, infección aguda, heridas abiertas, quemaduras, problemas circulatorios (trombosis, flebitis), enfermedades contagiosas de piel, fracturas recientes o inflamación aguda, primeros 3 meses de embarazo, insuficiencia renal o cardíaca, várices avanzadas, patología gástrica, piel sensible por alergias, colitis, infección urinaria, cáncer, o mujeres con período abundante (en ese caso no hacer en abdomen).
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ContactSection() {
+  return (
+    <section id="contacto" style={{ padding: "96px 48px", background: "var(--cream)" }}>
+      <div style={{ maxWidth: 720, margin: "0 auto", textAlign: "center" }}>
+        <div className="contact-card" style={{
+          display: "inline-block",
+          background: "linear-gradient(135deg, var(--terra-light), var(--sage-light))",
+          borderRadius: 24, padding: "56px 64px",
+          border: "1px solid var(--border)",
+        }}>
+          <div style={{ fontSize: 40, marginBottom: 16 }}>◎</div>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(28px, 4vw, 40px)", fontWeight: 600, marginBottom: 12, letterSpacing: "-0.02em" }}>
+            ¿Querés inscribirte?
+          </h2>
+          <p style={{ fontSize: 16, color: "var(--muted)", lineHeight: 1.7, marginBottom: 32, maxWidth: 420 }}>
+            Escribime por WhatsApp para consultar sobre el programa, fechas disponibles y aranceles.
+          </p>
+          <a href="https://wa.me/5492954551339?text=Hola%20Andrea!%20Quisiera%20consultar%20sobre%20las%20clases%20de%20masajes" target="_blank" rel="noopener noreferrer" style={{
+            display: "inline-flex", alignItems: "center", gap: 10,
+            background: "#25d366", color: "white",
+            padding: "16px 36px", borderRadius: 48,
+            fontSize: 16, fontWeight: 500, textDecoration: "none",
+            boxShadow: "0 4px 20px oklch(60% 0.18 155 / 0.35)",
+            transition: "all 0.2s",
+          }}
+            onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 8px 28px oklch(60% 0.18 155 / 0.5)"; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = "0 4px 20px oklch(60% 0.18 155 / 0.35)"; }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+            </svg>
+            Escribir por WhatsApp
+          </a>
+          <div style={{ marginTop: 24, fontSize: 13, color: "var(--muted)" }}>
+            +54 9 2954 55-1339 · Santa Rosa, La Pampa
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="footer-inner" style={{
+      background: "var(--brown)", color: "oklch(85% 0.02 60)",
+      padding: "40px 48px", display: "flex", alignItems: "center", justifyContent: "space-between",
+      fontSize: 13,
+    }}>
+      <div>
+        <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, color: "white", marginBottom: 4 }}>Andrea Pral</div>
+        <div>Clases de Masajes · Santa Rosa, La Pampa</div>
+      </div>
+      <div style={{ textAlign: "right" }}>
+        <div>Clases online vía Zoom</div>
+        <div style={{ marginTop: 4, opacity: 0.6 }}>+54 9 2954 55-1339</div>
+      </div>
+    </footer>
+  );
+}
+
+function App() {
+  return (
+    <>
+      <style>{`
+        @keyframes bounce {
+          0%,100% { transform: translateX(-50%) translateY(0); }
+          50% { transform: translateX(-50%) translateY(6px); }
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.4; }
+        }
+      `}</style>
+      <Nav />
+      <Hero />
+      <Features />
+      <ProgramSection />
+      <Calendar />
+      <ZoomSection />
+      <EspacioSection />
+      <ContactSection />
+      <Footer />
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+
+/*
+════════════════════════════════════════════════════════════════════════════════
+  CONFIGURACIÓN DE GOOGLE CALENDAR
+════════════════════════════════════════════════════════════════════════════════
+
+  Las credenciales ya NO van en este archivo. Van en Vercel como variables
+  de entorno. Ver README.md para el paso a paso completo.
+
+  1. HACER EL CALENDARIO PÚBLICO
+     a. Google Calendar → tres puntos junto al calendario → "Configuración".
+     b. "Permisos de acceso" → activar "Disponible para el público"
+        → "Ver todos los detalles del evento".
+
+  2. OBTENER EL CALENDAR ID
+     a. Misma pantalla → "Integrar el calendario".
+     b. Copiá el "ID de calendario" (ej: abc@group.calendar.google.com).
+     c. Pegalo como variable de entorno CALENDAR_ID en Vercel.
+
+  3. CREAR Y RESTRINGIR LA API KEY
+     a. Google Cloud Console → "APIs y servicios" → "Biblioteca"
+        → "Google Calendar API" → "Habilitar".
+     b. "Credenciales" → "Clave de API".
+     c. Restringí la clave por "Restricciones de API" → "Google Calendar API".
+        (Ya no hace falta restricción por referente HTTP, porque la clave
+        nunca sale del servidor.)
+     d. Pegala como variable de entorno API_KEY en Vercel.
+
+════════════════════════════════════════════════════════════════════════════════
+*/
+</script>
+</body>
+</html>
