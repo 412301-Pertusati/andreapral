@@ -978,36 +978,6 @@ function App() {
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);
-
-/*
-════════════════════════════════════════════════════════════════════════════════
-  CONFIGURACIÓN DE GOOGLE CALENDAR
-════════════════════════════════════════════════════════════════════════════════
-
-  Las credenciales ya NO van en este archivo. Van en Vercel como variables
-  de entorno. Ver README.md para el paso a paso completo.
-
-  1. HACER EL CALENDARIO PÚBLICO
-     a. Google Calendar → tres puntos junto al calendario → "Configuración".
-     b. "Permisos de acceso" → activar "Disponible para el público"
-        → "Ver todos los detalles del evento".
-
-  2. OBTENER EL CALENDAR ID
-     a. Misma pantalla → "Integrar el calendario".
-     b. Copiá el "ID de calendario" (ej: abc@group.calendar.google.com).
-     c. Pegalo como variable de entorno CALENDAR_ID en Vercel.
-
-  3. CREAR Y RESTRINGIR LA API KEY
-     a. Google Cloud Console → "APIs y servicios" → "Biblioteca"
-        → "Google Calendar API" → "Habilitar".
-     b. "Credenciales" → "Clave de API".
-     c. Restringí la clave por "Restricciones de API" → "Google Calendar API".
-        (Ya no hace falta restricción por referente HTTP, porque la clave
-        nunca sale del servidor.)
-     d. Pegala como variable de entorno API_KEY en Vercel.
-
-════════════════════════════════════════════════════════════════════════════════
-*/
 </script>
 </body>
 </html>
