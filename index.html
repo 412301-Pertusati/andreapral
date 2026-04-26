@@ -235,6 +235,21 @@ function Nav() {
 }
 
 function Hero() {
+  const types = ["relajantes", "descontracturantes", "deportivos"];
+  const [typeIndex, setTypeIndex] = useState(0);
+  const [fadeIn, setFadeIn] = useState(true);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setFadeIn(false);
+      setTimeout(() => {
+        setTypeIndex(i => (i + 1) % types.length);
+        setFadeIn(true);
+      }, 400);
+    }, 3200);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <section style={{
       minHeight: "100vh", display: "flex", flexDirection: "column",
@@ -271,7 +286,16 @@ function Hero() {
         color: "var(--brown)", marginBottom: 8,
         letterSpacing: "-0.03em",
       }}>
-        Masajes desde cero
+        Masajes{" "}
+        <span style={{
+          display: "inline-block",
+          transition: "opacity 0.4s ease, transform 0.4s ease",
+          opacity: fadeIn ? 1 : 0,
+          transform: fadeIn ? "translateY(0)" : "translateY(-10px)",
+          color: "var(--terra)",
+        }}>
+          {types[typeIndex]}
+        </span>
       </h1>
       <h2 style={{
         fontFamily: "'Playfair Display', serif",
@@ -286,7 +310,7 @@ function Hero() {
         lineHeight: 1.7, marginBottom: 44,
         fontWeight: 300,
       }}>
-        Masajista profesional con más de <strong style={{color:"var(--brown)", fontWeight:500}}>14 años de experiencia</strong>. Aprendé técnicas de masaje con cañas y masaje de espalda desde donde estés — clases en vivo por Zoom con material de estudio incluido.
+        Masajista profesional con más de <strong style={{color:"var(--brown)", fontWeight:500}}>14 años de experiencia</strong>. En mis clases aprendés distintas técnicas con cañas, piedras y aromas, con seguimiento en vivo y material de estudio para repasar a tu ritmo.
       </p>
 
       <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center" }}>
@@ -312,6 +336,13 @@ function Hero() {
           Consultar por WhatsApp
         </a>
       </div>
+
+      <p style={{
+        fontSize: 13, color: "var(--muted)",
+        marginTop: 16, fontWeight: 300,
+      }}>
+        Escribime por WhatsApp y te envío toda la información para comenzar.
+      </p>
 
       {/* scroll hint */}
       <div style={{
