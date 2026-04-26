@@ -235,6 +235,21 @@ function Nav() {
 }
 
 function Hero() {
+  const types = ["relajantes", "descontracturantes", "deportivos"];
+  const [typeIndex, setTypeIndex] = useState(0);
+  const [fadeIn, setFadeIn] = useState(true);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setFadeIn(false);
+      setTimeout(() => {
+        setTypeIndex(i => (i + 1) % types.length);
+        setFadeIn(true);
+      }, 400);
+    }, 3200);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <section style={{
       minHeight: "100vh", display: "flex", flexDirection: "column",
@@ -271,7 +286,16 @@ function Hero() {
         color: "var(--brown)", marginBottom: 8,
         letterSpacing: "-0.03em",
       }}>
-        Masajes relajantes, descontracturantes y deportivos — desde cero
+        Masajes{" "}
+        <span style={{
+          display: "inline-block",
+          transition: "opacity 0.4s ease, transform 0.4s ease",
+          opacity: fadeIn ? 1 : 0,
+          transform: fadeIn ? "translateY(0)" : "translateY(-10px)",
+          color: "var(--terra)",
+        }}>
+          {types[typeIndex]}
+        </span>
       </h1>
       <h2 style={{
         fontFamily: "'Playfair Display', serif",
